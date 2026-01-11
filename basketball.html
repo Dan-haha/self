@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>篮球精英 - 完整版</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="basketball-loader"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <div id="main-menu" class="screen">
+        <div class="menu-header">
+            <h1><i class="fas fa-basketball-ball"></i> 篮球精英 2024</h1>
+            <p class="subtitle">专业级篮球模拟游戏</p>
+        </div>
+        
+        <div class="menu-content">
+            <div class="menu-options">
+                <button id="quick-game" class="menu-btn">
+                    <i class="fas fa-play"></i> 快速比赛
+                </button>
+                <button id="season-mode" class="menu-btn">
+                    <i class="fas fa-trophy"></i> 赛季模式
+                </button>
+                <button id="multiplayer" class="menu-btn">
+                    <i class="fas fa-users"></i> 多人游戏
+                </button>
+                <button id="training" class="menu-btn">
+                    <i class="fas fa-dumbbell"></i> 训练模式
+                </button>
+                <button id="settings" class="menu-btn">
+                    <i class="fas fa-cog"></i> 设置
+                </button>
+                <button id="credits" class="menu-btn">
+                    <i class="fas fa-info-circle"></i> 关于
+                </button>
+            </div>
+            
+            <div class="team-selector">
+                <h3>选择球队</h3>
+                <div class="teams-grid" id="teams-container">
+                    <!-- 球队将通过JS动态生成 -->
+                </div>
+            </div>
+            
+            <div class="difficulty-selector">
+                <h3>游戏难度</h3>
+                <div class="difficulty-options">
+                    <button class="diff-btn active" data-level="rookie">新秀</button>
+                    <button class="diff-btn" data-level="pro">职业</button>
+                    <button class="diff-btn" data-level="allstar">全明星</button>
+                    <button class="diff-btn" data-level="legendary">传奇</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div id="game-header">
+            <div class="scoreboard">
+                <div class="team-info home">
+                    <div class="team-logo" id="home-logo">LAL</div>
+                    <div class="team-name" id="home-name">湖人</div>
+                    <div class="team-score" id="home-score">0</div>
+                </div>
+                
+                <div class="game-info">
+                    <div class="quarter" id="quarter">第1节</div>
+                    <div class="game-clock" id="game-clock">12:00</div>
+                    <div class="shot-clock" id="shot-clock">24</div>
+                    <div class="possession" id="possession-indicator">
+                        <i class="fas fa-basketball-ball"></i>
+                    </div>
+                </div>
+                
+                <div class="team-info away">
+                    <div class="team-logo" id="away-logo">GSW</div>
+                    <div class="team-name" id="away-name">勇士</div>
+                    <div class="team-score" id="away-score">0</div>
+                </div>
+            </div>
+            
+            <div id="player-stats">
+                <div class="stat-bar">
+                    <span class="stat-name">体力</span>
+                    <div class="stat-meter">
+                        <div class="stat-fill stamina" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-name">投篮</span>
+                    <div class="stat-meter">
+                        <div class="stat-fill shooting" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-name">控球</span>
+                    <div class="stat-meter">
+                        <div class="stat-fill dribbling" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-container">
+            <canvas id="game-canvas"></canvas>
+            
+            <div id="game-hud">
+                <div id="shot-meter" class="hud-element hidden">
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="shot-power"></div>
+                        <div class="meter-perfect" id="shot-perfect"></div>
+                    </div>
+                    <div class="meter-label" id="shot-timing">释放空格键投篮</div>
+                </div>
+                
+                <div id="controls-hint" class="hud-element">
+                    <div class="hint-row">
+                        <span class="hint-key">W A S D</span>
+                        <span class="hint-text">移动</span>
+                    </div>
+                    <div class="hint-row">
+                        <span class="hint-key">空格</span>
+                        <span class="hint-text">投篮/传球</span>
+                    </div>
+                    <div class="hint-row">
+                        <span class="hint-key">SHIFT</span>
+                        <span class="hint-text">冲刺</span>
+                    </div>
+                    <div class="hint-row">
+                        <span class="hint-key">TAB</span>
+                        <span class="hint-text">切换球员</span>
+                    </div>
+                </div>
+                
+                <div id="game-messages" class="hud-element">
+                    <!-- 游戏消息将动态添加 -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-controls">
+            <div class="control-section">
+                <h3>操作指南</h3>
+                <div class="control-grid">
+                    <div class="control-item">
+                        <div class="control-key">W A S D</div>
+                        <div class="control-desc">球员移动</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-key">空格</div>
+                        <div class="control-desc">投篮/传球</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-key">SHIFT</div>
+                        <div class="control-desc">冲刺</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-key">TAB</div>
+                        <div class="control-desc">切换球员</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-key">X</div>
+                        <div class="control-desc">交叉运球</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-key">C</div>
+                        <div class="control-desc">背后运球</div>
+                    </div>
+                    <div class="control-key">ESC</div>
+                        <div class="control-desc">暂停菜单</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>比赛事件</h3>
+                <div id="game-events">
+                    <div class="event-item">
+                        <span class="event-time">00:00</span>
+                        <span class="event-text">比赛开始</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>球员统计</h3>
+                <div id="player-details">
+                    <div class="player-info">
+                        <div class="player-name" id="current-player">控球后卫</div>
+                        <div class="player-attributes">
+                            <div class="attr">
+                                <span class="attr-name">速度</span>
+                                <div class="attr-value" id="attr-speed">85</div>
+                            </div>
+                            <div class="attr">
+                                <span class="attr-name">投篮</span>
+                                <div class="attr-value" id="attr-shooting">78</div>
+                            </div>
+                            <div class="attr">
+                                <span class="attr-name">控球</span>
+                                <div class="attr-value" id="attr-dribbling">88</div>
+                            </div>
+                            <div class="attr">
+                                <span class="attr-name">防守</span>
+                                <div class="attr-value" id="attr-defense">75</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="pause-menu" class="hidden">
+            <div class="pause-content">
+                <h2>游戏暂停</h2>
+                <button class="pause-btn" id="resume-game">继续游戏</button>
+                <button class="pause-btn" id="game-settings">游戏设置</button>
+                <button class="pause-btn" id="back-to-menu">返回主菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="screen hidden">
+        <div class="game-over-content">
+            <h2>比赛结束</h2>
+            <div class="final-score">
+                <div class="final-team home">
+                    <div class="final-team-name" id="final-home-name">湖人</div>
+                    <div class="final-team-score" id="final-home-score">0</div>
+                </div>
+                <div class="vs">VS</div>
+                <div class="final-team away">
+                    <div class="final-team-name" id="final-away-name">勇士</div>
+                    <div class="final-team-score" id="final-away-score">0</div>
+                </div>
+            </div>
+            <div class="winner" id="winner-text"></div>
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-label">比赛时间</span>
+                    <span class="stat-value" id="total-time">48:00</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">投篮命中率</span>
+                    <span class="stat-value" id="fg-percentage">50%</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">三分命中率</span>
+                    <span class="stat-value" id="3pt-percentage">40%</span>
+                </div>
+            </div>
+            <div class="game-over-buttons">
+                <button class="game-over-btn" id="play-again">再玩一次</button>
+                <button class="game-over-btn" id="back-to-main">主菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bounce-sound" preload="auto">
+        <source src="assets/sounds/bounce.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="swish-sound" preload="auto">
+        <source src="assets/sounds/swish.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="dribble-sound" preload="auto">
+        <source src="assets/sounds/dribble.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="crowd-sound" preload="auto" loop>
+        <source src="assets/sounds/crowd.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="buzzer-sound" preload="auto">
+        <source src="assets/sounds/buzzer.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 游戏脚本 -->
+    <script src="js/utils.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/team.js"></script>
+    <script src="js/ball.js"></script>
+    <script src="js/court.js"></script>
+    <script src="js/controls.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
